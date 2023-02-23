@@ -1,0 +1,8 @@
+frontend/build linguist-detectable=false
+frontend/config linguist-detectable=false
+frontend/package.json linguist-detectable=false
+frontend/package-lock.json linguist-detectable=false
+frontend/public linguist-detectable=false
+frontend/scripts linguist-detectable=false
+frontend/tsconfig.json linguist-detectable=false
+
