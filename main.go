@@ -1,16 +1,22 @@
 package main
 
 import (
+	_ "embed"
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	cron "github.com/robfig/cron/v3"
 )
 
+//go:embed frontend/build/index.html
+var indexPage []byte
+
 func index(w http.ResponseWriter, req *http.Request) {
-	io.WriteString(w, "Hello")
+	w.WriteHeader(200)
+	w.Write(indexPage)
 }
 
 func load(w http.ResponseWriter, req *http.Request) {
@@ -32,11 +38,22 @@ func save(w http.ResponseWriter, req *http.Request) {
 	state := State{}
 	err = json.Unmarshal(body, &state)
 	state.Save()
-	io.WriteString(w, "Saved")
+	json, err := json.Marshal(state)
+	if err != nil {
+		log.Fatal(err)
+	}
+	w.Header().Add("content-type", "application/json")
+	w.Write(json)
+}
+
+func daily() {
+	fmt.Printf("Today's cloud coverage is: %f\n", calculate_cloud_average())
 }
 
 func main() {
-	fmt.Println(calculate_cloud_average())
+	c := cron.New()
+	c.AddFunc("@every 5m", daily)
+	c.Start()
 	port := 8080
 	fmt.Println("RUNNING")
 	http.HandleFunc("/", index)

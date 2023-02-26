@@ -41,7 +41,6 @@ func calculate_cloud_average() float64 {
 	state := State{}
 	state.Load()
 
-	fmt.Printf("Lat: %f, Lon: %f\n", state.Lat, state.Lon)
 	request, err := http.NewRequest("GET", fmt.Sprintf("https://api.met.no/weatherapi/locationforecast/2.0/complete?lat=%f&lon=%f", state.Lat, state.Lon), nil)
 	if err != nil {
 		log.Fatal(err)
@@ -72,7 +71,6 @@ func calculate_cloud_average() float64 {
 	for _, entry := range forecast.Properties.Timeseries {
 		if entry.Time.Day() == now.Day()+1 && entry.Time.Month() == now.Month() && entry.Time.Year() == now.Year() && entry.Data.Instant.Details.Ultraviolet_Index_Clear_Sky > 0 {
 			count += 1.0
-			fmt.Println(entry.Data.Instant.Details.Cloud_Area_Fraction)
 			cloudAreaFractionSum += entry.Data.Instant.Details.Cloud_Area_Fraction
 		}
 	}

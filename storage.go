@@ -6,9 +6,22 @@ import (
 	"os"
 )
 
+type Slot struct {
+	Point      int     `json:"point"`
+	Voltage    float64 `json:"voltage"`
+	GridCharge bool    `json:"grid_charge"`
+}
+
+type TimeOfUseTable struct {
+	ID        string  `json:"id"`
+	Slots     []Slot  `json:"slots"`
+	Threshold float64 `json:"threshold"`
+}
+
 type State struct {
-	Lat float64
-	Lon float64
+	Lat             float64          `json:"lat"`
+	Lon             float64          `json:"lon"`
+	TimeOfUseTables []TimeOfUseTable `json:"timeOfUseTables"`
 }
 
 var DATABASE_PATH = "database.gob"
@@ -17,7 +30,7 @@ func (state *State) Load() {
 	dataFile, err := os.Open(DATABASE_PATH)
 
 	if err != nil {
-		log.Fatal(err)
+		return
 	}
 
 	dataDecoder := gob.NewDecoder(dataFile)
