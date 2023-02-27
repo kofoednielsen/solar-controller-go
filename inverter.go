@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
@@ -11,19 +12,21 @@ var f mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 	fmt.Printf("MSG: %s\n", msg.Payload())
 }
 
-func set_inverter_time_of_use() {
-	opts := mqtt.NewClientOptions().AddBroker("tcp://iot.eclipse.org:1883").SetClientID("gotrivial")
+var client mqtt.Client
 
-	c := mqtt.NewClient(opts)
-	if token := c.Connect(); token.Wait() && token.Error() != nil {
-		panic(token.Error())
+func inverter_connect() {
+	opts := mqtt.NewClientOptions().AddBroker("tcp://192.168.0.60:1883").SetClientID("solar-controller")
+	client = mqtt.NewClient(opts)
+	if token := client.Connect(); token.Wait() && token.Error() != nil {
+		log.Fatal(token.Error())
 	}
+}
 
-	for i := 0; i < 5; i++ {
-		text := fmt.Sprintf("this is msg #%d!", i)
-		token := c.Publish("go-mqtt/sample", 0, false, text)
-		token.Wait()
-	}
+func inverter_disconnect() {
+	client.Disconnect(5000)
+}
 
-	c.Disconnect(250)
+func set_inverter_time_of_use(category string, point int, value string) {
+	token := client.Publish(fmt.Sprintf("solar_assistant/inverter_1/%s_point_%d/set", category, point), 0, false, value)
+	token.Wait()
 }

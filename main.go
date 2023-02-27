@@ -7,8 +7,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 
-	cron "github.com/robfig/cron/v3"
+	"github.com/robfig/cron/v3"
 )
 
 //go:embed frontend/build/index.html
@@ -47,7 +48,25 @@ func save(w http.ResponseWriter, req *http.Request) {
 }
 
 func daily() {
-	fmt.Printf("Today's cloud coverage is: %f\n", calculate_cloud_average())
+	state := State{}
+	state.Load()
+	if state.Lat == 0 || state.Lon == 0 {
+		return
+	}
+	todayCloudCoverage := calculate_cloud_average()
+	fmt.Printf("Today's cloud coverage is: %f\n", todayCloudCoverage)
+	inverter_connect()
+	for _, timeOfUseTable := range reverse(state.TimeOfUseTables) {
+		if todayCloudCoverage > timeOfUseTable.Threshold {
+			for _, slot := range timeOfUseTable.Slots {
+				fmt.Printf("Slot %d: Voltage: %f V, Grid Charge: %s\n", slot.Point, slot.Voltage, strconv.FormatBool(slot.GridCharge))
+				set_inverter_time_of_use("voltage", slot.Point, fmt.Sprintf("%f", slot.Voltage))
+				set_inverter_time_of_use("grid_charge", slot.Point, strconv.FormatBool((slot.GridCharge)))
+			}
+			break
+		}
+	}
+	inverter_disconnect()
 }
 
 func main() {
@@ -59,5 +78,6 @@ func main() {
 	http.HandleFunc("/", index)
 	http.HandleFunc("/load", load)
 	http.HandleFunc("/save", save)
+	daily()
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 }

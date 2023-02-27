@@ -2,18 +2,18 @@ import React, { useState, useEffect, useCallback } from "react";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
+import Chip from "@mui/material/Chip";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import TimeOfUse, { TimeOfUseType } from "./TimeOfUse";
 import WeatherSettings from "./WeatherSettings";
-import LoadingButton from "@mui/lab/LoadingButton";
-import SaveIcon from "@mui/icons-material/Save";
 import { v4 as uuidv4 } from "uuid";
 
 const App = () => {
   const [lat, setLat] = useState<number>();
   const [lon, setLon] = useState<number>();
   const [loading, setLoading] = useState<boolean>(true);
+  const [NetworkError, setNeworkError] = useState<boolean>(false);
   const [lastKnownServerState, setLastKnownServerState] =
     useState<Array<TimeOfUseType>>();
   const [timeOfUseTables, setTimeOfUseTables] = useState<Array<TimeOfUseType>>(
@@ -43,7 +43,7 @@ const App = () => {
           setTimeOfUseTables([emptyTimeOfUseTable(0)]);
         }
         setLoading(false);
-      });
+      }).catch((e) => setNeworkError(true));
   }, []);
 
   const timeOfUseSort = useCallback((tables: Array<TimeOfUseType>) => {
@@ -156,15 +156,16 @@ const App = () => {
     );
   };
 
-  if (loading) return null;
+  if (NetworkError) return <Box p={2}><p>Network error, sorry 😥</p></Box>
+  if (loading) return null
   return (
     <Box sx={{ flexGrow: 1 }}>
       <Grid justifyContent="center" container>
-        <Grid xs={12} md={8} m={1} mt={3} item>
+        <Grid xs={12} lg={8} m={2} mt={4} item>
           <Grid spacing={2} container>
-            <Grid xs={12} item>
-              <Typography variant="h4" gutterBottom>
-                Solar controller
+            <Grid xs={12} mx={2} item>
+              <Typography variant="h5" gutterBottom>
+                Solar Controller <Chip label={process.env.REACT_APP_VERSION}/>
               </Typography>
             </Grid>
             <WeatherSettings
@@ -194,7 +195,7 @@ const App = () => {
                         key={t.id}
                       />
                     ))}
-                    <Grid xs={6} lg={3} item>
+                    <Grid xs={12} md={6} lg={4} xl={3} item>
                       <Button
                         onClick={add}
                         style={{ width: "100%" }}
@@ -208,8 +209,9 @@ const App = () => {
                 </Box>
               </Card>
             </Grid>
-            <Grid xs={12} item>
+            <Grid xs={12} md={4} lg={2} mb={1} item>
                 <Button
+                  fullWidth
                   disabled={
                     inputError || saved
                   }

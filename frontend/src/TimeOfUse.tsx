@@ -112,7 +112,7 @@ const TimeOfUse = ({
 
   return (
     <>
-      <Grid item xs={6} lg={3}>
+      <Grid item xs={12} md={6} lg={4} xl={3}>
         <Card variant="outlined">
           <Box p={1}>
             <Grid container>
@@ -144,7 +144,9 @@ const TimeOfUse = ({
                 </Grid>
               )}
             </Grid>
-            <TableContainer>
+            <TableContainer
+             style={{overflow: "hidden"}}
+            >
               <Table aria-label="simple table" size="small">
                 <TableHead>
                   <TableRow>

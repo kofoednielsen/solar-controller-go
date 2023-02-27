@@ -24,7 +24,7 @@ type State struct {
 	TimeOfUseTables []TimeOfUseTable `json:"timeOfUseTables"`
 }
 
-var DATABASE_PATH = "database.gob"
+var DATABASE_PATH = "/var/lib/solar-controller/database.gob"
 
 func (state *State) Load() {
 	dataFile, err := os.Open(DATABASE_PATH)

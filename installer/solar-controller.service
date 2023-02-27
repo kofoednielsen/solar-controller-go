@@ -1,0 +1,7 @@
+[Unit]
+Description=Solar-controller
+After=network.target auditd.service
+
+[Service]
+ExecStart=solar-controller
+Restart=always
