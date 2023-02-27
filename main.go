@@ -71,7 +71,7 @@ func daily() {
 
 func main() {
 	c := cron.New()
-	c.AddFunc("@every 5m", daily)
+	c.AddFunc("10 0 * * *", daily)
 	c.Start()
 	port := 8080
 	fmt.Println("RUNNING")
